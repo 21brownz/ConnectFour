@@ -1,12 +1,30 @@
 public class ConnectFour implements BoardGame {
+    private int[][] board;
+    private int currentPlayer;
+    private Position[] winningPositions;
+    private int winner;
+
     @Override
     public void newGame() {
-
+    board = new int[6][7];
+    currentPlayer = 1;
+    winner = 0;
     }
 
     @Override
     public boolean gameOver() {
-        return false;
+        if (currentPlayer == 1){
+            currentPlayer = 2;
+        } else{
+            currentPlayer = 1;
+        }
+        checkForWin();
+        if (currentPlayer == 1){
+            currentPlayer = 2;
+        } else{
+            currentPlayer = 1;
+        }
+        return winner > 0 || isBoardFull();
     }
 
     @Override
@@ -16,21 +34,79 @@ public class ConnectFour implements BoardGame {
 
     @Override
     public Position[] getWinningPositions() {
-        return new Position[0];
+        return winningPositions;
     }
 
     @Override
     public boolean columnFull(int column) {
-        return false;
+        return board[0][column] > 0;
     }
 
     @Override
     public void play(int column) {
+        if (!columnFull(column)) {
+            for (int i = board.length - 1; i >= 0; i--) {
+                if (board[i][column] == 0) {
+                    board[i][column] = currentPlayer;
+                    currentPlayer = (currentPlayer == 1)? 2 : 1;
+                    return;
+                }
+            }
+        }
+    }
 
+    private boolean isBoardFull() {
+        int full = 0;
+        for (int col = 0; col < board[0].length; col++) {
+            if (columnFull(col)) {
+                full++;
+            }
+        }
+        return full == board[0].length;
+    }
+
+    private void checkForWin() {
+        winningPositions = new Position[]{new Position()};
+        // Horizontal Check
+        for (int j = 0; j < board[0].length - 3; j++) {
+            for (int i = 0; i < board.length; i++) {
+                if (board[i][j] == currentPlayer && board[i][j + 1] == currentPlayer && board[i][j + 2] == currentPlayer && board[i][j + 3] == currentPlayer) {
+                    winningPositions = new Position[]{new Position(i, j), new Position(i, j+1), new Position(i, j+2), new Position(i, j+3)};
+                    winner = currentPlayer;
+                }
+            }
+        }
+        // Vertical Check
+        for (int i = 0; i < board.length - 3; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (board[i][j] == currentPlayer && board[i + 1][j] == currentPlayer && board[i + 2][j] == currentPlayer && board[i + 3][j] == currentPlayer) {
+                    winningPositions = new Position[]{new Position(i, j), new Position(i+1, j), new Position(i+2, j), new Position(i+3, j)};
+                    winner = currentPlayer;
+                }
+            }
+        }
+        // Ascending Diagonal Check
+        for (int i = 3; i < board.length; i++) {
+            for (int j = 0; j < board[0].length - 3; j++) {
+                if (board[i][j] == currentPlayer && board[i - 1][j + 1] == currentPlayer && board[i - 2][j + 2] == currentPlayer && board[i - 3][j + 3] == currentPlayer) {
+                    winningPositions = new Position[]{new Position(i, j), new Position(i-1, j+1), new Position(i-2, j+2), new Position(i-3, j+3)};
+                    winner = currentPlayer;
+                }
+            }
+        }
+        // Descending Diagonal Check
+        for (int i = 3; i < board.length; i++) {
+            for (int j = 3; j < board[0].length; j++) {
+                if (board[i][j] == currentPlayer && board[i - 1][j - 1] == currentPlayer && board[i - 2][j - 2] == currentPlayer && board[i - 3][j - 3] == currentPlayer) {
+                    winningPositions = new Position[]{new Position(i, j), new Position(i-1, j-1), new Position(i-2, j-2), new Position(i-3, j-3)};
+                    winner = currentPlayer;
+                }
+            }
+        }
     }
 
     @Override
     public int[][] getBoard() {
-        return new int[0][];
+        return board;
     }
 }
